@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apiServerBook/credential"
+	"apiServerBook/auth"
 	"apiServerBook/data"
 	"apiServerBook/rest"
 	"fmt"
@@ -21,8 +21,8 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.URLFormat)
 
-	r.Post("/login", credential.LogIn)
-	r.Post("/logout", credential.LogOut)
+	r.Post("/login", auth.LogIn)
+	r.Post("/logout", auth.LogOut)
 
 	r.Group(func(r chi.Router) {
 		r.Route("/books", func(r chi.Router) {

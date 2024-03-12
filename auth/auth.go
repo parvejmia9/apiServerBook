@@ -1,4 +1,4 @@
-package credential
+package auth
 
 import (
 	"apiServerBook/data"
