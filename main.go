@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -71,18 +72,18 @@ func Init() {
 		{ID: "3", Title: "Murder on the Orient Express", Genre: "Mystery", AuthorID: "3"},
 		{ID: "4", Title: "1984", Genre: "Dystopian", AuthorID: "4"},
 		{ID: "5", Title: "The Old Man and the Sea", Genre: "Fiction", AuthorID: "5"},
-		//{ID: "6", Title: "Hamlet", Genre: "Tragedy", AuthorID: "6"},
-		//{ID: "7", Title: "The Adventures of Tom Sawyer", Genre: "Adventure", AuthorID: "7"},
-		//{ID: "8", Title: "To Kill a Mockingbird", Genre: "Fiction", AuthorID: "8"},
-		//{ID: "9", Title: "The Hobbit", Genre: "Fantasy", AuthorID: "9"},
-		//{ID: "10", Title: "Pride and Prejudice", Genre: "Romance", AuthorID: "10"},
-		//{ID: "11", Title: "It", Genre: "Horror", AuthorID: "1"},
-		//{ID: "12", Title: "The Stand", Genre: "Post-apocalyptic", AuthorID: "1"},
-		//{ID: "13", Title: "The Casual Vacancy", Genre: "Fiction", AuthorID: "2"},
-		//{ID: "14", Title: "Harry Potter and the Chamber of Secrets", Genre: "Fantasy", AuthorID: "2"},
-		//{ID: "15", Title: "Death on the Nile", Genre: "Mystery", AuthorID: "3"},
-		//{ID: "16", Title: "Animal Farm", Genre: "Dystopian", AuthorID: "4"},
-		//{ID: "17", Title: "A Farewell to Arms", Genre: "War", AuthorID: "5"},
+		{ID: "6", Title: "Hamlet", Genre: "Tragedy", AuthorID: "6"},
+		{ID: "7", Title: "The Adventures of Tom Sawyer", Genre: "Adventure", AuthorID: "7"},
+		{ID: "8", Title: "To Kill a Mockingbird", Genre: "Fiction", AuthorID: "8"},
+		{ID: "9", Title: "The Hobbit", Genre: "Fantasy", AuthorID: "9"},
+		{ID: "10", Title: "Pride and Prejudice", Genre: "Romance", AuthorID: "10"},
+		{ID: "11", Title: "It", Genre: "Horror", AuthorID: "1"},
+		{ID: "12", Title: "The Stand", Genre: "Post-apocalyptic", AuthorID: "1"},
+		{ID: "13", Title: "The Casual Vacancy", Genre: "Fiction", AuthorID: "2"},
+		{ID: "14", Title: "Harry Potter and the Chamber of Secrets", Genre: "Fantasy", AuthorID: "2"},
+		{ID: "15", Title: "Death on the Nile", Genre: "Mystery", AuthorID: "3"},
+		{ID: "16", Title: "Animal Farm", Genre: "Dystopian", AuthorID: "4"},
+		{ID: "17", Title: "A Farewell to Arms", Genre: "War", AuthorID: "5"},
 	}
 	for _, val := range books {
 		bookList[val.ID] = val
@@ -315,6 +316,30 @@ func logOut(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 }
+func search(w http.ResponseWriter, r *http.Request) {
+	type sItems struct {
+		Authors []Author `json:"authors"`
+		Books   []Book   `json:"books"`
+	}
+	var res sItems
+	sToken := chi.URLParam(r, "sToken")
+	for _, val := range bookList {
+		if strings.Contains(val.Title, sToken) {
+			res.Books = append(res.Books, val)
+		}
+	}
+	for _, val := range authorList {
+		if strings.Contains(val.FirstName, sToken) || strings.Contains(val.LastName, sToken) {
+			res.Authors = append(res.Authors, val)
+		}
+	}
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+}
 func main() {
 	Init()
 	r := chi.NewRouter()
@@ -345,6 +370,7 @@ func main() {
 			r.Get("/", getAllAuthors)
 			r.Get("/{id}", getOneAuthor)
 		})
+		r.Get("/search/{sToken}", search)
 	})
 
 	fmt.Println("Listening and Serving to 9090")
