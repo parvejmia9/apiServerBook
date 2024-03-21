@@ -5,11 +5,12 @@ import (
 	"apiServerBook/data"
 	"apiServerBook/rest"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
-	"log"
-	"net/http"
 )
 
 func main() {
@@ -46,9 +47,10 @@ func main() {
 	})
 
 	fmt.Println("Listening and Serving to 9090")
-	err := http.ListenAndServe("localhost:9090", r)
+	err := http.ListenAndServe(":9090", r)
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
+
 }
